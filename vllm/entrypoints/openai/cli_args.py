@@ -9,7 +9,7 @@ import json
 import ssl
 
 from vllm.engine.arg_utils import AsyncEngineArgs, nullable_str
-from vllm.entrypoints.openai.serving_engine import LoRAModulePath
+from vllm.entrypoints.openai.protocol import LoRAModulePath
 
 
 class LoRAParserAction(argparse.Action):

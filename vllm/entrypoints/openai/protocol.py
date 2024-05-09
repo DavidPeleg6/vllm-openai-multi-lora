@@ -26,6 +26,12 @@ class ErrorResponse(OpenAIBaseModel):
     code: int
 
 
+@dataclass
+class LoRAModulePath:
+    lora_name: str
+    lora_local_path: str
+
+
 class ModelPermission(OpenAIBaseModel):
     id: str = Field(default_factory=lambda: f"modelperm-{random_uuid()}")
     object: str = "model_permission"
@@ -154,16 +160,12 @@ class ChatCompletionRequest(OpenAIBaseModel):
         description=(
             "If specified, will override the default whitespace pattern "
             "for guided json decoding."))
-
-    lora_request: Optional[dict] = Field(default_factory=dict)
-
+    lora_request: Optional[LoRAModulePath] = Field(
+        default=None,
+        description=(
+            "If specified, will add a new lora adapter to the list of served models"))
 
     # doc: end-chat-completion-extra-params
-
-    def to_lora_params(self) -> Union[LoRARequest, None]:
-        if not self.lora_request:
-            return None
-        return LoRARequest(**self.lora_request)
 
     def to_sampling_params(self) -> SamplingParams:
         if self.logprobs and not self.top_logprobs:
@@ -308,15 +310,12 @@ class CompletionRequest(OpenAIBaseModel):
         description=(
             "If specified, will override the default whitespace pattern "
             "for guided json decoding."))
-    lora_request: Optional[dict] = Field(default_factory=dict)
-
+    lora_request: Optional[LoRAModulePath] = Field(
+        default=None,
+        description=(
+            "If specified, will add a new lora adapter to the list of served models"))
 
     # doc: end-completion-extra-params
-
-    def to_lora_params(self) -> Union[LoRARequest, None]:
-        if not self.lora_request:
-            return None
-        return LoRARequest(**self.lora_request)
 
     def to_sampling_params(self):
         echo_without_generation = self.echo and self.max_tokens == 0

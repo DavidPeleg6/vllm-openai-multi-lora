@@ -1,5 +1,4 @@
 import json
-from dataclasses import dataclass
 from http import HTTPStatus
 from typing import Dict, List, Optional, Tuple, Union
 import os
@@ -13,19 +12,13 @@ from vllm.engine.async_llm_engine import AsyncLLMEngine
 from vllm.entrypoints.openai.protocol import (ChatCompletionRequest,
                                               CompletionRequest, ErrorResponse,
                                               LogProbs, ModelCard, ModelList,
-                                              ModelPermission)
+                                              ModelPermission, LoRAModulePath)
 from vllm.logger import init_logger
 from vllm.lora.request import LoRARequest
 from vllm.sequence import Logprob
 from vllm.transformers_utils.tokenizer import get_tokenizer
 
 logger = init_logger(__name__)
-
-
-@dataclass
-class LoRAModulePath:
-    name: str
-    local_path: str
 
 
 def positive_hash_sha256(input_string):
@@ -171,12 +164,12 @@ class OpenAIServing:
             if request.model == lora.lora_name:
                 return lora
 
-        if request.lora_request and os.path.exists(request.lora_request.local_path):
+        if request.lora_request and os.path.exists(request.lora_request.lora_local_path):
             lora_int_id = positive_hash_sha256(request.model)
             new_lora = LoRARequest(
                 lora_name=request.model,
                 lora_int_id=lora_int_id,
-                lora_local_path=request.lora_request.local_path,
+                lora_local_path=request.lora_request.lora_local_path,
             )
             self.lora_requests.append(new_lora)
             return new_lora
