@@ -7,6 +7,7 @@ import torch
 from openai.types.chat import ChatCompletionMessageParam
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 from typing_extensions import Annotated
+from dataclasses import dataclass
 
 from vllm.sampling_params import SamplingParams
 from vllm.utils import random_uuid
