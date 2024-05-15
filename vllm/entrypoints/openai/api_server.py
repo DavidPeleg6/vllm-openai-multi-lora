@@ -5,6 +5,7 @@ import re
 from contextlib import asynccontextmanager
 from http import HTTPStatus
 from typing import Optional, Set
+import traceback
 
 import fastapi
 import uvicorn
@@ -100,42 +101,57 @@ async def show_version():
 @app.post("/v1/chat/completions")
 async def create_chat_completion(request: ChatCompletionRequest,
                                  raw_request: Request):
-    generator = await openai_serving_chat.create_chat_completion(
-        request, raw_request)
-    if isinstance(generator, ErrorResponse):
-        return JSONResponse(content=generator.model_dump(),
-                            status_code=generator.code)
-    if request.stream:
-        return StreamingResponse(content=generator,
-                                 media_type="text/event-stream")
-    else:
-        assert isinstance(generator, ChatCompletionResponse)
-        return JSONResponse(content=generator.model_dump())
+    try:
+        generator = await openai_serving_chat.create_chat_completion(
+            request, raw_request)
+        if isinstance(generator, ErrorResponse):
+            return JSONResponse(content=generator.model_dump(),
+                                status_code=generator.code)
+        if request.stream:
+            return StreamingResponse(content=generator,
+                                     media_type="text/event-stream")
+        else:
+            assert isinstance(generator, ChatCompletionResponse)
+            return JSONResponse(content=generator.model_dump())
+    except Exception as e:
+        logger.error(f"Error in create_chat_completion:"
+                     f"request {request}\n\n recieved the following error {repr(e)}\n\n"
+                     f"traceback: {traceback.format_exc()}")
 
 
 @app.post("/v1/completions")
 async def create_completion(request: CompletionRequest, raw_request: Request):
-    generator = await openai_serving_completion.create_completion(
-        request, raw_request)
-    if isinstance(generator, ErrorResponse):
-        return JSONResponse(content=generator.model_dump(),
-                            status_code=generator.code)
-    if request.stream:
-        return StreamingResponse(content=generator,
-                                 media_type="text/event-stream")
-    else:
-        return JSONResponse(content=generator.model_dump())
+    try:
+        generator = await openai_serving_completion.create_completion(
+            request, raw_request)
+        if isinstance(generator, ErrorResponse):
+            return JSONResponse(content=generator.model_dump(),
+                                status_code=generator.code)
+        if request.stream:
+            return StreamingResponse(content=generator,
+                                     media_type="text/event-stream")
+        else:
+            return JSONResponse(content=generator.model_dump())
+    except Exception as e:
+        logger.error(f"Error in create_completion:"
+                     f"request {request}\n\n recieved the following error {repr(e)}\n\n"
+                     f"traceback: {traceback.format_exc()}")
 
 
 @app.post("/v1/embeddings")
 async def create_embedding(request: EmbeddingRequest, raw_request: Request):
-    generator = await openai_serving_embedding.create_embedding(
-        request, raw_request)
-    if isinstance(generator, ErrorResponse):
-        return JSONResponse(content=generator.model_dump(),
-                            status_code=generator.code)
-    else:
-        return JSONResponse(content=generator.model_dump())
+    try:
+        generator = await openai_serving_embedding.create_embedding(
+            request, raw_request)
+        if isinstance(generator, ErrorResponse):
+            return JSONResponse(content=generator.model_dump(),
+                                status_code=generator.code)
+        else:
+            return JSONResponse(content=generator.model_dump())
+    except Exception as e:
+        logger.error(f"Error in create_embedding:"
+                     f"request {request}\n\n recieved the following error {repr(e)}\n\n"
+                     f"traceback: {traceback.format_exc()}")
 
 
 if __name__ == "__main__":
