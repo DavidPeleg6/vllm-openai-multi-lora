@@ -7,6 +7,7 @@ import torch
 from openai.types.chat import ChatCompletionMessageParam
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 from typing_extensions import Annotated
+from dataclasses import dataclass
 
 from vllm.pooling_params import PoolingParams
 from vllm.sampling_params import SamplingParams
@@ -24,6 +25,12 @@ class ErrorResponse(OpenAIBaseModel):
     type: str
     param: Optional[str] = None
     code: int
+
+
+@dataclass
+class LoRAModulePath:
+    lora_name: str
+    lora_local_path: str
 
 
 class ModelPermission(OpenAIBaseModel):
@@ -154,6 +161,10 @@ class ChatCompletionRequest(OpenAIBaseModel):
         description=(
             "If specified, will override the default whitespace pattern "
             "for guided json decoding."))
+    lora_request: Optional[LoRAModulePath] = Field(
+        default=None,
+        description=(
+            "If specified, will add a new lora adapter to the list of served models"))
 
     # doc: end-chat-completion-extra-params
 
@@ -300,6 +311,10 @@ class CompletionRequest(OpenAIBaseModel):
         description=(
             "If specified, will override the default whitespace pattern "
             "for guided json decoding."))
+    lora_request: Optional[LoRAModulePath] = Field(
+        default=None,
+        description=(
+            "If specified, will add a new lora adapter to the list of served models"))
 
     # doc: end-completion-extra-params
 

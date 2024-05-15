@@ -1,7 +1,8 @@
 import json
-from dataclasses import dataclass
 from http import HTTPStatus
 from typing import Dict, List, Optional, Tuple, Union
+import os
+import hashlib
 
 from pydantic import Field
 from typing_extensions import Annotated
@@ -12,7 +13,7 @@ from vllm.entrypoints.openai.protocol import (ChatCompletionRequest,
                                               CompletionRequest,
                                               EmbeddingRequest, ErrorResponse,
                                               LogProbs, ModelCard, ModelList,
-                                              ModelPermission)
+                                              ModelPermission, LoRAModulePath)
 from vllm.logger import init_logger
 from vllm.lora.request import LoRARequest
 from vllm.sequence import Logprob
@@ -21,10 +22,12 @@ from vllm.transformers_utils.tokenizer import get_tokenizer
 logger = init_logger(__name__)
 
 
-@dataclass
-class LoRAModulePath:
-    name: str
-    local_path: str
+def positive_hash_sha256(input_string):
+    """
+    function to generate positive hash from input string, which is used to identify the model variant for lora
+    sha-256 is used to keep it consistent between python versions and the sheets addon
+    """
+    return int(hashlib.sha256(input_string.encode('utf-8')).hexdigest(), 16) % (2 ** 63)
 
 
 class OpenAIServing:
@@ -148,6 +151,8 @@ class OpenAIServing:
             return None
         if request.model in [lora.lora_name for lora in self.lora_requests]:
             return None
+        elif request.lora_request and os.path.exists(request.lora_request.lora_local_path):
+            return None
         return self.create_error_response(
             message=f"The model `{request.model}` does not exist.",
             err_type="NotFoundError",
@@ -161,6 +166,17 @@ class OpenAIServing:
         for lora in self.lora_requests:
             if request.model == lora.lora_name:
                 return lora
+
+        if request.lora_request and os.path.exists(request.lora_request.lora_local_path):
+            lora_int_id = positive_hash_sha256(request.model)
+            new_lora = LoRARequest(
+                lora_name=request.model,
+                lora_int_id=lora_int_id,
+                lora_local_path=request.lora_request.lora_local_path,
+            )
+            self.lora_requests.append(new_lora)
+            return new_lora
+
         # if _check_model has been called earlier, this will be unreachable
         raise ValueError(f"The model `{request.model}` does not exist.")
 
