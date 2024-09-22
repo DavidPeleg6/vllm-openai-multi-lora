@@ -205,23 +205,23 @@ if(VLLM_GPU_LANG STREQUAL "CUDA")
   )
   FetchContent_MakeAvailable(cutlass)
 
-  list(APPEND VLLM_EXT_SRC
-    "csrc/mamba/mamba_ssm/selective_scan_fwd.cu"
-    "csrc/mamba/causal_conv1d/causal_conv1d.cu"
-    "csrc/quantization/aqlm/gemm_kernels.cu"
-    "csrc/quantization/awq/gemm_kernels.cu"
-    "csrc/quantization/marlin/dense/marlin_cuda_kernel.cu"
-    "csrc/quantization/marlin/sparse/marlin_24_cuda_kernel.cu"
-    "csrc/quantization/marlin/qqq/marlin_qqq_gemm_kernel.cu"
-    "csrc/quantization/gptq_marlin/gptq_marlin.cu"
-    "csrc/quantization/gptq_marlin/gptq_marlin_repack.cu"
-    "csrc/quantization/gptq_marlin/awq_marlin_repack.cu"
-    "csrc/quantization/gguf/gguf_kernel.cu"
-    "csrc/quantization/fp8/fp8_marlin.cu"
-    "csrc/custom_all_reduce.cu"
-    "csrc/quantization/cutlass_w8a8/scaled_mm_entry.cu"
-    "csrc/quantization/cutlass_w8a8/scaled_mm_c2x.cu"
-    "csrc/quantization/cutlass_w8a8/scaled_mm_c3x.cu")
+  #list(APPEND VLLM_EXT_SRC
+  #  "csrc/mamba/mamba_ssm/selective_scan_fwd.cu"
+  #  "csrc/mamba/causal_conv1d/causal_conv1d.cu"
+  #  "csrc/quantization/aqlm/gemm_kernels.cu"
+  #  "csrc/quantization/awq/gemm_kernels.cu"
+  #  "csrc/quantization/marlin/dense/marlin_cuda_kernel.cu"
+  #  "csrc/quantization/marlin/sparse/marlin_24_cuda_kernel.cu"
+  #  "csrc/quantization/marlin/qqq/marlin_qqq_gemm_kernel.cu"
+  #  "csrc/quantization/gptq_marlin/gptq_marlin.cu"
+  #  "csrc/quantization/gptq_marlin/gptq_marlin_repack.cu"
+  #  "csrc/quantization/gptq_marlin/awq_marlin_repack.cu"
+  #  "csrc/quantization/gguf/gguf_kernel.cu"
+  #  "csrc/quantization/fp8/fp8_marlin.cu"
+  #  "csrc/custom_all_reduce.cu"
+  #  "csrc/quantization/cutlass_w8a8/scaled_mm_entry.cu"
+  #  "csrc/quantization/cutlass_w8a8/scaled_mm_c2x.cu"
+  #  "csrc/quantization/cutlass_w8a8/scaled_mm_c3x.cu")
 
   #
   # The CUTLASS kernels for Hopper require sm90a to be enabled.
