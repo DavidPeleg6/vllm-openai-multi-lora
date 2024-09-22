@@ -22,7 +22,7 @@ from vllm.entrypoints.openai.protocol import (
     ChatCompletionRequest, ChatCompletionResponse,
     ChatCompletionResponseChoice, ChatCompletionResponseStreamChoice,
     ChatCompletionStreamResponse, ChatMessage, DeltaFunctionCall, DeltaMessage,
-    DeltaToolCall, ErrorResponse, FunctionCall, ToolCall, UsageInfo)
+    DeltaToolCall, ErrorResponse, FunctionCall, ToolCall, UsageInfo, LoadLoraAdapterRequest)
 from vllm.entrypoints.openai.serving_engine import (BaseModelPath,
                                                     LoRAModulePath,
                                                     OpenAIServing,
@@ -101,6 +101,11 @@ class OpenAIServingChat(OpenAIServing):
         ChatCompletion API.
 
         """
+        # dudu addition
+        await self.load_lora_adapter(LoadLoraAdapterRequest(lora_name=request.model,
+                                                            lora_path=f"app/artifacts/adapters/{request.model}"))
+        # dudu end addition
+
         error_check_ret = await self._check_model(request)
         if error_check_ret is not None:
             logger.error("Error with model %s", error_check_ret)

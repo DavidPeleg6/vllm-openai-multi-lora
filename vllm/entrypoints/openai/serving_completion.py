@@ -18,7 +18,8 @@ from vllm.entrypoints.openai.protocol import (CompletionLogProbs,
                                               CompletionResponseChoice,
                                               CompletionResponseStreamChoice,
                                               CompletionStreamResponse,
-                                              ErrorResponse, UsageInfo)
+                                              ErrorResponse, UsageInfo,
+                                              LoadLoraAdapterRequest)
 # yapf: enable
 from vllm.entrypoints.openai.serving_engine import (BaseModelPath,
                                                     LoRAModulePath,
@@ -75,6 +76,11 @@ class OpenAIServingCompletion(OpenAIServing):
             - suffix (the language models we currently support do not support
             suffix)
         """
+        # dudu addition
+        await self.load_lora_adapter(LoadLoraAdapterRequest(lora_name=request.model,
+                                                            lora_path=f"app/artifacts/adapters/{request.model}"))
+        # dudu end addition
+
         error_check_ret = await self._check_model(request)
         if error_check_ret is not None:
             return error_check_ret
