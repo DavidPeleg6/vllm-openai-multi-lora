@@ -104,7 +104,7 @@ class OpenAIServingChat(OpenAIServing):
         # dudu addition
         if not any(lora_request.lora_name == request.model for lora_request in self.lora_requests):
             await self.load_lora_adapter(LoadLoraAdapterRequest(lora_name=request.model,
-                                                                lora_path=f"app/artifacts/adapters/{request.model}"))
+                                                                lora_path=f"/app/artifacts/adapters/{request.model}"))
         # dudu end addition
 
         error_check_ret = await self._check_model(request)
